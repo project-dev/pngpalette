@@ -14,15 +14,6 @@
             }
 
             #canvas{
-/*
-                position:fixed;
-                top:0px;
-                left:0px;
-*/
-/*
-                width:100%;
-                height:100%;
-*/
                 padding:0px;
                 margin:0px;
 
@@ -83,6 +74,7 @@
                 }).catch(reject =>{
                     console.log(reject);
                 });
+
                 document.getElementById('viewImageButton').addEventListener('click', (e) => {
                     console.log("click");
                     let keys = Object.keys(imgMap);
@@ -92,6 +84,7 @@
                     }
                     viewImage();
                 });
+                
                 document.getElementById('dumpCanvasButton').addEventListener('click', (e) => {
                     let canvas = document.getElementById('canvas');
                     var data = canvas.toDataURL('image/png8');
@@ -101,29 +94,12 @@
                     outBytewData("dump", buff);
 
                 });
-                document.getElementById('pltChgButton').addEventListener('click', (e) => {
-                    let keys = Object.keys(imgMap);
-                    let image = imgMap[keys[imgIdx]].image;
-                    let buff = imgMap[keys[imgIdx]].buff;
-                    let palette = imgMap[keys[imgIdx]].palette;
-                    var b = palette[4];
-                    if(b >= 250 && b < 255){
-                        b = 255;
-                    }else if(b ==255){
-                        b = 0;
-                    }else{
-                        b = b + 10;
-                    }
-                    palette[4] = b;
-                    palette[5] = b;
-                    palette[6] = 0x00;
-                    updatePalette(image, buff, palette);
-                    //viewImage();
-                });
+                
                 window.requestAnimationFrame(animation);
                 resize();
             });
 
+            // アニメーション用のカウンタ
             var anicnt = 0;
             function animation(){
                 try{
@@ -131,6 +107,8 @@
                     let image = imgMap[keys[imgIdx]].image;
                     let buff = imgMap[keys[imgIdx]].buff;
                     let palette = imgMap[keys[imgIdx]].palette;
+
+                    // パレットアニメーション用のパレット情報
                     let animePlt = [
                         new Uint8Array([
                             0, 0, 225,
@@ -157,6 +135,7 @@
                             0, 0, 225,
                         ]),
                     ];
+
                     let idx =  Math.floor(anicnt / 20);
                     palette.set(animePlt[idx], 10 * 3 + 4);
                     anicnt++;
@@ -190,6 +169,9 @@
                 }
             }
 
+            /**
+             * イメージ表示 
+             */
             function viewImage(){
                 let canvas = document.getElementById('canvas');
                 let ctx = canvas.getContext('2d');
@@ -207,47 +189,68 @@
                 ctx.drawImage(img, 0, 0, img.width * 4, img.height * 4);
             }
 
-
+            /**
+             * パレットの更新
+             * @param image Imageオブジェクト
+             * @param buff 画像データ配列
+             * @param palette パレットのChunk TypeとChunk Data
+             */
             async function updatePalette(image, buff, palette){
-                // 37byte目からPLT_LENGTH分のサイズがパレットデータ
-                // 37byte + PLT_LENGTH から4byteがcrc
-
+                // CRC32を計算
                 let crc = calcCRC32(palette);
-/*
-                outBytewData("before", crc);
-                outBytewData("before", buff);
-*/
-                buff.set(palette, 37);
-                buff.set(crc, 37 + PLT_LENGTH + 4);
-                //outBytewData("after", buff);
 
+                // バッファにパレットを適用
+                buff.set(palette, PALETTE_CHUNK_TYPE_POS);
+                //CRC32を適用
+                buff.set(crc, PALETTE_DATA_POS + PLT_LENGTH);
+
+                // バッファをバイナリ文字列に変換
                 let binStr = Array.from(buff, e => String.fromCharCode(e)).join("");
+
+                // dataURLの生成
                 let dataUrl = "data:image/png;base64,"+btoa(binStr);
+
+                // Promiseでやる必要性があるかどうかはわからないけど
+                // 試したいことがあったのでこんなことしてる。
                 let imgPromise = new Promise((resolve, reject) =>{
                     image.onload = () => {
-                        //console.log("image load OK");
                         resolve();
                     }
-                    //// 遅延ローディングはしない(意味はあまりない)
-                    //image.loading = 'eager';
-                    //// 同期的な読み込み(意味はあまりない)
-                    //image.decoding = 'sync';
+                    /*
+                    // 遅延ローディングはしない(意味はあまりない)
+                    image.loading = 'eager';
+                    // 同期的な読み込み(意味はあまりない)
+                    image.decoding = 'sync';
+                    */
                     image.src = dataUrl;
                 }).then(() => {
-                    //console.log("view image");
                     viewImage();
                 });
-                //console.log("finish");
             }
 
+            /**
+             * パレットのみ読み込み
+             * いまは使わない
+             */ 
             async function loadPalette(name, url){
                 return loadPng(name, url, true);
             }
 
+            /**
+             * 画像の読み込み
+             * @param name キー名称
+             * @param url 対象URL
+             */
             async function loadImage(name, url){
                 return loadPng(name, url, false);
             }
 
+            /**
+             * PNGの読み込み
+             * @param name キー名称
+             * @param url 対象URL
+             * @param isPaletteOnly パレットのみ読み込み
+             */
             async function loadPng(name, url, isPaletteOnly){
                 console.log("[" + url + "] : request");
                 let response = await fetch(url);
@@ -311,6 +314,7 @@
                         return;
                     }
 
+                    // パレットデータの取得
                     var paletdata = buff.slice(PALETTE_CHUNK_TYPE_POS, PALETTE_CHUNK_TYPE_POS + 4 + PLT_LENGTH);
                     outBytewData(url, paletdata);
 
@@ -382,11 +386,7 @@
     <body>
         <button id="viewImageButton" disabled>Next</button>
         <button id="dumpCanvasButton">Dump</button>
-        <button id="pltChgButton">PaletteChange</button>
         <hr>
-<!--
-        <img id="img"/>
--->
         <canvas id="canvas"></canvas>
     </body>
 </html>
