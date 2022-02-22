@@ -9,11 +9,11 @@ const PNG_SIGNATURE = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 
 /** ビット深度とカラータイプ */
 const IMAGE_FORMAT = new Uint8Array([0x08, 0x03]);
 
-/** PLTEシグネチャ のサイズ */
+/** PLTEチャンク のサイズ */
 const PLTE_SIZE = new Uint8Array([0x00, 0x00, 0x03, 0x00]);
 
-/** PLTEシグネチャ名 */
-const PLTE_PNG_SIGNATURE = new Uint8Array([0x50, 0x4c, 0x54, 0x45]);
+/** PLTEチャンク名 */
+const PLTE_CHUNKTYPE = new Uint8Array([0x50, 0x4c, 0x54, 0x45]);
 
 /** PLTEのサイズ */
 const PLT_LENGTH = 0x0300;
@@ -280,7 +280,7 @@ async function loadPng(name, url, isPaletteOnly){
 
         // Chunk Type
         let chunkTypePLT = buff.slice(PALETTE_CHUNK_TYPE_POS, PALETTE_CHUNK_TYPE_POS + 4);
-        if(JSON.stringify(PLTE_PNG_SIGNATURE) != JSON.stringify(chunkTypePLT)){
+        if(JSON.stringify(PLTE_CHUNKTYPE) != JSON.stringify(chunkTypePLT)){
             console.log("[" + url + "] : Palette data not found");
             return;
         }
@@ -289,9 +289,9 @@ async function loadPng(name, url, isPaletteOnly){
         var paletdata = buff.slice(PALETTE_CHUNK_TYPE_POS, PALETTE_CHUNK_TYPE_POS + 4 + PLT_LENGTH);
         outBytewData(url, paletdata);
 
-        // CRCを取得
-        var crcdata = buff.slice(PALETTE_DATA_POS + PLT_LENGTH, PALETTE_DATA_POS + PLT_LENGTH + 4);
-        outBytewData(url, crcdata);
+        //// CRCを取得
+        //var crcdata = buff.slice(PALETTE_DATA_POS + PLT_LENGTH, PALETTE_DATA_POS + PLT_LENGTH + 4);
+        //outBytewData(url, crcdata);
 
         if(isPaletteOnly){
             // パレットの保存
