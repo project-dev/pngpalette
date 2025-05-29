@@ -11,7 +11,7 @@
 
 今後はTypeScriptで開発していこうと思います。
 
-index.htmlはPureJSで実装したもの。こちらは今後更新することはありません。
+index.htmlはPureJSで実装したものになります。
 index_ts.htmlはTypeScriptで開発したものになります。
 
 ----

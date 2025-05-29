@@ -1,5 +1,3 @@
-
-
 /**
  * PNGを描画するための仮想キャンバスを作成します
  * JSONをクラスの替わりに使ってるけど、クラスのようには当然ふるまえないのでちょっと実装がダサいけど気にしない。
@@ -33,6 +31,8 @@ function createCanvas(width, height){
         "create":(target)=>{
             // width * height * rgba(4byte)
             target.canvas = new Uint8Array(target.width * target.height);
+            target.palette = new Uint8Array(255 * 3);
+            target.defaultPalette = new Uint8Array(255 * 3);
         },
 
         /**
@@ -48,6 +48,10 @@ function createCanvas(width, height){
          * @returns pngClass
          */
         "drawPng":(target, pngData, sx, sy, sw, sh, dx, dy)=>{
+            if(pngData == null || 'ihdr' in pngData == false){
+                // ヘッダ情報がない
+                return;
+            }
             if(pngData.ihdr.color != 3){
                 // パレットカラーのみ対応
                 return;
@@ -73,7 +77,8 @@ function createCanvas(width, height){
         
                 for(var x = sx; x < endX; x++ ){
                     var isTrans = false;
-                    let pxColorIdx = row[x];
+                    // ToDo:なぜか先頭が0っぽいのでさらに1ずらす。原因究明は後回し
+                    let pxColorIdx = row[x + 1];
                     trans.forEach(element => {
                         if(element == pxColorIdx){
                             isTrans = true;
@@ -125,14 +130,19 @@ function createCanvas(width, height){
          * @param {integer} dy 
          */
         "drawContext":(ctx, target, sx,sy, dx, dy)=>{
-            
+
+            if(!target || !target.palette){
+                return;
+            }
+
             // インデックスから実際のパレットへの変換は、ここでやらないだめ。
-            var imgData = ctx.createImageData(target.width, target.height);
 
             let palette = target.palette;
             let w = target.width;
             let h = target.height;
             let trans = target.trans;
+
+            var imgData = ctx.createImageData(target.width, target.height);
 
             //  var startTime = performance.now();
             // TODO:このループが時間かかる。まぁ、当たり前なんだけど。
@@ -169,31 +179,35 @@ function createCanvas(width, height){
 */
 
             // 暫定的にシンプルにしてみたけど、まぁ、効果はない
-            for(var idx = 0; idx < h * w; idx++){
-                let pxColorIdx = target.canvas[idx];
-                let r = palette[pxColorIdx * 3    ];
-                let g = palette[pxColorIdx * 3 + 1];
-                let b = palette[pxColorIdx * 3 + 2];
+            if(palette && palette.length > 0){
+                for(var idx = 0; idx < h * w; idx++){
+                    let pxColorIdx = target.canvas[idx];
+                    let r = palette[pxColorIdx * 3    ];
+                    let g = palette[pxColorIdx * 3 + 1];
+                    let b = palette[pxColorIdx * 3 + 2];
 
-                var isTrans = false;
-                trans.forEach(element => {
-                    if(element == pxColorIdx){
-                        isTrans = true;
+                    var isTrans = false;
+                    if(trans){
+                        trans.forEach(element => {
+                            if(element == pxColorIdx){
+                                isTrans = true;
+                            }
+                        });
                     }
-                });
 
-                if(!isTrans){
-                    // 透明色は描画しない
-                    //let pxidx = ((y + sy) * pngW + (x + sx)) * 4;
-                    let pxidx = idx * 4;
-                    imgData.data[pxidx   ] = r;
-                    imgData.data[pxidx + 1] = g;
-                    imgData.data[pxidx + 2] = b;
-                    imgData.data[pxidx + 3] = 0xff;
+                    if(!isTrans){
+                        // 透明色は描画しない
+                        //let pxidx = ((y + sy) * pngW + (x + sx)) * 4;
+                        let pxidx = idx * 4;
+                        imgData.data[pxidx   ] = r;
+                        imgData.data[pxidx + 1] = g;
+                        imgData.data[pxidx + 2] = b;
+                        imgData.data[pxidx + 3] = 0xff;
+                    }
                 }
+                //console.log("drawContext time " + (performance.now() - startTime));
+                ctx.putImageData(imgData, dx, dy);
             }
-            //console.log("drawContext time " + (performance.now() - startTime));
-            ctx.putImageData(imgData, dx, dy);
         }
     };
     pngClass.create(pngClass);
