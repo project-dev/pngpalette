@@ -37,7 +37,7 @@ const PALETTE_DATA_POS = 41;
         try{
             let data = await response.arrayBuffer();
             var buff = new Uint8Array(data);
-            outBytewData(url, buff);
+            //outBytewData(url, buff);
     
     
             // PNGファイルシグネチャの確認
