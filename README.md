@@ -1,3 +1,6 @@
+- [PNG PALETTE ANIMATION SAMPLE](#png-palette-animation-sample)
+- [既知の問題](#既知の問題)
+
 # PNG PALETTE ANIMATION SAMPLE
 
 8bitカラーでパレット形式のPNG画像でパレットアニメーションさせるサンプル的なものです。
@@ -30,6 +33,7 @@ From now on, I will develop with TypeScript.
 index.html is implemented with PureJS. This one will not be updated in the future.
 index_ts.html will be developed with TypeScript.
 
+----
 
 # 既知の問題
 
