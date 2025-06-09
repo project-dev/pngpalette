@@ -29,3 +29,10 @@ From now on, I will develop with TypeScript.
 
 index.html is implemented with PureJS. This one will not be updated in the future.
 index_ts.html will be developed with TypeScript.
+
+
+# 既知の問題
+
+- PNGの読み込みに失敗する場合がある 
+  - zipの解凍に失敗していることまでは判明
+
