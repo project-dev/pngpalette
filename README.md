@@ -1,5 +1,6 @@
 - [PNG PALETTE ANIMATION SAMPLE](#png-palette-animation-sample)
 - [既知の問題](#既知の問題)
+- [ToDo](#todo)
 
 # PNG PALETTE ANIMATION SAMPLE
 
@@ -40,3 +41,10 @@ index_ts.html will be developed with TypeScript.
 - PNGの読み込みに失敗する場合がある 
   - zipの解凍に失敗していることまでは判明
 
+# ToDo
+
+- 不要な情報は持たないようにする
+  - 読み込んだデータそのまま持ってるのは多分よくない
+- TypeScript再チャレンジ
+  - なんか面倒になって中途半端になっている
+- 多分読めない(未対応)なPNGがあるかもしれないのでその辺調べて何とかする
