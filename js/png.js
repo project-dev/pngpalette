@@ -32,11 +32,11 @@ const PALETTE_DATA_POS = 41;
  */
  async function loadPng(url){
     let response = await fetch(url);
-    var imgData;
+    let imgData = null;
     if(response.ok){
         try{
             let data = await response.arrayBuffer();
-            var buff = new Uint8Array(data);
+            let buff = new Uint8Array(data);
             outBytewData(url, buff);
     
     
@@ -47,11 +47,7 @@ const PALETTE_DATA_POS = 41;
                 console.log("[" + url + "] : not png");
                 return;
             }
-    
-            imgData = {
-                "buff":buff,
-            };
-    
+
             // チャンクの構造
             // length 4byte
             // Chunk Type 4byte
