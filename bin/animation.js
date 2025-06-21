@@ -113,20 +113,25 @@ export class Animation {
                 ]),
             ];
             if (anime.systemPalette && anime.pngCanvas) {
-                let idx = Math.floor(anime.anicnt / 20);
+                let idx = Math.floor(anime.anicnt / 5);
                 anime.systemPalette.set(animePlt[idx], 10 * 3);
                 anime.anicnt++;
-                if (anime.anicnt >= 20 * 4) {
+                if (anime.anicnt >= 5 * 4) {
                     anime.anicnt = 0;
                 }
                 let canvas = document.getElementById('canvas');
                 anime.pngCanvas.palette = anime.systemPalette;
                 anime.pngCanvas.defaultPalette = anime.defPalette;
                 anime.pngCanvas.trans = anime.defTrans;
+                //                var st : Date = new Date();
                 anime.pngCanvas.fillRect(0, 0, canvas.width, canvas.height, 63);
-                anime.pngCanvas.drawPng(pngData.PNGData, 0, 0, 64, 64, 10, 10);
+                for (var i = 0; i < 100; i++) {
+                    anime.pngCanvas.drawPng(pngData.PNGData, 0, 0, 64, 64, 10, 10);
+                }
                 anime.pngCanvas.drawPng(pngData.PNGData, 10, 10, 32, 32, 84, 80);
                 anime.pngCanvas.drawContext(anime.ctx, 0, 0, 0, 0);
+                //                var tim = new Date().getTime() - st.getTime();
+                //                console.log(tim.toString() + " msec");
                 let buff = document.getElementById('canvas');
                 (_a = anime.ctx2) === null || _a === void 0 ? void 0 : _a.drawImage(buff, 0, 0, 720, 480);
             }

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja_JP">
+    <head>
+        <meta charset="utf-8"/>
+        <title>PNG Animation</title>
+        <style>
+            html,body{
+                min-width:100%;
+                min-height:100%;
+                width:100%;
+                height:100%;
+                margin:0px;
+                padding:0px;
+                background-color:#ffffff;
+            }
+
+            #canvas, #canvas2{
+                padding:0px;
+                margin:0px;
+                image-rendering: pixelated;
+                border:1px solid black;
+            }
+    </style>
+        <script type="module">
+            import {anime} from "./bin/animation.js";
+            document.addEventListener('DOMContentLoaded', function() {
+                anime.initalize();
+            });
+
+        </script>
+    </head>
+    <body>
+        <button id="viewImageButton" disabled>Next</button>
+        <input type="text" id="fps" readonly/>
+        <hr>
+        <canvas id="canvas" width="240px" height="160px"></canvas><br>
+        <canvas id="canvas2" width="720px" height="480px"></canvas>
+    </body>
+</html>
