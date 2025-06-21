@@ -1,7 +1,7 @@
 /**
  * require
  * crc32.js https://cdnjs.cloudflare.com/ajax/libs/crc-32/1.2.1/crc32.min.js
- * zlib.js  https://github.com/imaya/zlib.js
+ * pako.js  https://github.com/nodeca/pako
  */
 
 // PNGファイルシグネチャ
@@ -36,8 +36,8 @@ const PALETTE_DATA_POS = 41;
     if(response.ok){
         try{
             let data = await response.arrayBuffer();
-            let buff = new Uint8Array(data);
-            outBytewData(url, buff);
+            var buff = new Uint8Array(data);
+            //outBytewData(url, buff);
     
     
             // PNGファイルシグネチャの確認
@@ -48,6 +48,16 @@ const PALETTE_DATA_POS = 41;
                 return;
             }
 
+            // URLからファイル名の拡張子を覗いたものを取得
+            const fileName = url.split('/').pop();
+            const baseName = fileName.replace(/\.[^/.]+$/, '');                            
+
+            imgData = {
+                "buff":buff,
+                "url":url,
+                "name":baseName,
+            };
+    
             // チャンクの構造
             // length 4byte
             // Chunk Type 4byte
@@ -91,17 +101,23 @@ const PALETTE_DATA_POS = 41;
                     outBytewData(url, crc32);
                     throw "[" + url + "] : " + chunkType + " : Invalid CRC32";
                 }
-    
-                anProcMap[chunkType](chunkType, dataBuff.slice(4), len, imgData);
+
+                try{
+                    anProcMap[chunkType](chunkType, dataBuff.slice(4), len, imgData);
+                }catch(e){
+                    console.error("[" + url + "] : chunkType : " + chunkType);
+                    console.log("[" + url + "] : len       : " + dataBuff.byteLength + " / " + len);
+                    console.log("width    : " + imgData.ihdr.width);
+                    console.log("height   : " + imgData.ihdr.height);
+                    console.log("deps     : " + imgData.ihdr.deps);
+                    console.log("Color    : " + imgData.ihdr.color);
+                    console.log("Compress : " + imgData.ihdr.compress);
+                    console.log("Filter   : " + imgData.ihdr.filter);
+                    console.log("Interlace: " + imgData.ihdr.interlace);
+                    throw e;
+                }
             }
-            console.log("width    : " + imgData.ihdr.width);
-            console.log("height   : " + imgData.ihdr.height);
-            console.log("deps     : " + imgData.ihdr.deps);
-            console.log("Color    : " + imgData.ihdr.color);
-            console.log("Compress : " + imgData.ihdr.compress);
-            console.log("Filter   : " + imgData.ihdr.filter);
-            console.log("Interlace: " + imgData.ihdr.interlace);
-    
+
             // 各種メソッド追加
     
             // 現在のデータでbuffの内容を更新する
@@ -141,6 +157,7 @@ const PALETTE_DATA_POS = 41;
         }catch(e){
             imgData = undefined;
             console.log("[" + url + "] : load faild");
+            console.error("[" + url + "] : " + e);
         }
 
     //console.log("[" + url + "] : load end");
@@ -203,8 +220,20 @@ let anProcMap = {
     },
     "IDAT":function(chunkType, buff, len, imgData){
         //イメージデータ
-        let inflate = new Zlib.Inflate(buff);
-        let plain = inflate.decompress();
+        if(imgData.ihdr.compress == 0){
+            // zlib形式
+            /*
+            var inflate = new Zlib.Inflate(buff);
+            var plain = inflate.decompress();
+            */
+            // rawではない
+            //var plain = pako.inflateRaw(buff);
+            // 
+            var plain = pako.inflate(buff);
+        }else{
+            // サポートしていない            
+            throw new Exception("unsupport compress type = " + imgData.ihdr.compress);
+        }
         //imgData.idat = buff;
         //TODO:とりあえず、先頭に0x00が入ってしまうのでごまかす
         imgData.idat = plain;
