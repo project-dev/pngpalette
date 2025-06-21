@@ -53,7 +53,6 @@ const PALETTE_DATA_POS = 41;
             const baseName = fileName.replace(/\.[^/.]+$/, '');                            
 
             imgData = {
-                "buff":buff,
                 "url":url,
                 "name":baseName,
             };
