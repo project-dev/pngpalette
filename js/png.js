@@ -113,6 +113,7 @@ const PALETTE_DATA_POS = 41;
                     console.log("Compress : " + imgData.ihdr.compress);
                     console.log("Filter   : " + imgData.ihdr.filter);
                     console.log("Interlace: " + imgData.ihdr.interlace);
+                    console.log(e);
                     throw e;
                 }
             }
@@ -220,22 +221,16 @@ let anProcMap = {
     "IDAT":function(chunkType, buff, len, imgData){
         //イメージデータ
         if(imgData.ihdr.compress == 0){
-            // zlib形式
             /*
+            // zlib形式
             let inflate = new Zlib.Inflate(buff);
             let plain = inflate.decompress();
             */
-            // rawではない
-            //let plain = pako.inflateRaw(buff);
-            // 
-            let plain = pako.inflate(buff);
+            imgData.idat = pako.inflate(buff);
         }else{
             // サポートしていない            
             throw new Exception("unsupport compress type = " + imgData.ihdr.compress);
         }
-        //imgData.idat = buff;
-        //TODO:とりあえず、先頭に0x00が入ってしまうのでごまかす
-        imgData.idat = plain;
 
     },
     "tRNS":function(chunkType, buff, len, imgData){
