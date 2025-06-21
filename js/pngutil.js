@@ -7,7 +7,7 @@
  * @param {integer} height 仮想キャンバスの高さ
  */
 function createCanvas(width, height){
-    var pngClass =  {
+    let pngClass =  {
         /** 仮想CanvasのUint8Array */
         "canvas":undefined,
 
@@ -53,7 +53,7 @@ function createCanvas(width, height){
                 return;
             }
 
-            //var startTime = performance.now();
+            //let startTime = performance.now();
         
             let pngW = pngData.ihdr.width;
             let pngH = pngData.ihdr.height;
@@ -67,12 +67,12 @@ function createCanvas(width, height){
             let buff = pngData.idat;
             let trans = pngData.trns;
 
-            for(var y = sy; y < endY; y++ ){
+            for(let y = sy; y < endY; y++ ){
                 // 0バイト目が必ず0になるので、ここで調節する
                 let row = buff.slice(y * (pngW + 1), y * (pngW + 1) + (pngW + 1));
         
-                for(var x = sx; x < endX; x++ ){
-                    var isTrans = false;
+                for(let x = sx; x < endX; x++ ){
+                    let isTrans = false;
                     let pxColorIdx = row[x];
                     trans.forEach(element => {
                         if(element == pxColorIdx){
@@ -106,8 +106,8 @@ function createCanvas(width, height){
          * @returns 
          */
         "fillRect":(target, sx, sy, w, h, colorindex)=>{
-            for(var y = sy; y < target.height; y++){
-                for(var x = sx; x < target.width; x++){
+            for(let y = sy; y < target.height; y++){
+                for(let x = sx; x < target.width; x++){
                     let pxidx = (y * target.width + x);
                     target.canvas[pxidx] = colorindex;
                 }
@@ -127,18 +127,18 @@ function createCanvas(width, height){
         "drawContext":(ctx, target, sx,sy, dx, dy)=>{
             
             // インデックスから実際のパレットへの変換は、ここでやらないだめ。
-            var imgData = ctx.createImageData(target.width, target.height);
+            let imgData = ctx.createImageData(target.width, target.height);
 
             let palette = target.palette;
             let w = target.width;
             let h = target.height;
             let trans = target.trans;
 
-            //  var startTime = performance.now();
+            //  let startTime = performance.now();
             // TODO:このループが時間かかる。まぁ、当たり前なんだけど。
 /*
-            for(var y = 0; y < h; y++ ){
-                for(var x = 0; x < w; x++ ){
+            for(let y = 0; y < h; y++ ){
+                for(let x = 0; x < w; x++ ){
                     // 0番目は必ず0のようなので+1して参照する
                     let idx = y * w + x;
                     let pxColorIdx = target.canvas[idx];
@@ -146,7 +146,7 @@ function createCanvas(width, height){
                     let g = palette[pxColorIdx * 3 + 1];
                     let b = palette[pxColorIdx * 3 + 2];
         
-                  var isTrans = false;
+                  let isTrans = false;
                     trans.forEach(element => {
                         if(element == pxColorIdx){
                             isTrans = true;
@@ -169,13 +169,13 @@ function createCanvas(width, height){
 */
 
             // 暫定的にシンプルにしてみたけど、まぁ、効果はない
-            for(var idx = 0; idx < h * w; idx++){
+            for(let idx = 0; idx < h * w; idx++){
                 let pxColorIdx = target.canvas[idx];
                 let r = palette[pxColorIdx * 3    ];
                 let g = palette[pxColorIdx * 3 + 1];
                 let b = palette[pxColorIdx * 3 + 2];
 
-                var isTrans = false;
+                let isTrans = false;
                 trans.forEach(element => {
                     if(element == pxColorIdx){
                         isTrans = true;

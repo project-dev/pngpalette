@@ -53,7 +53,7 @@ const PALETTE_DATA_POS = 41;
             // Chunk Type 4byte
             // ChundData length - 4byte
             // CRC32 4byte
-            var bytePos = 8;
+            let bytePos = 8;
             while(buff.length > bytePos){
     
                 // 長さはチャンクデータのサイズ
@@ -76,7 +76,7 @@ const PALETTE_DATA_POS = 41;
                 // ChunkTypeを取得する
                 let buffChunkType = dataBuff.slice(0, 4);
                 //outBytewData(url, buffChunkType);
-                //var chunkType = String.fromCharCode(buffChunkType);
+                //let chunkType = String.fromCharCode(buffChunkType);
                 let chunkType = String.fromCharCode(buffChunkType[0], buffChunkType[1], buffChunkType[2], buffChunkType[3]);
     
                 // crc32
@@ -165,7 +165,7 @@ let anProcMap = {
         //    Chunk Data フィルター手法    1byte
         //    Chunk Data インターレス手法  1byte
         //    CRC                          4byte Chunk TypeとChukd Dataを元に計算
-        var pos = 0;
+        let pos = 0;
         let width = buffToNum(buff.slice(pos, pos + 4), 4);        
         pos += 4;
 
@@ -203,8 +203,8 @@ let anProcMap = {
     },
     "IDAT":function(chunkType, buff, len, imgData){
         //イメージデータ
-        var inflate = new Zlib.Inflate(buff);
-        var plain = inflate.decompress();
+        let inflate = new Zlib.Inflate(buff);
+        let plain = inflate.decompress();
         //imgData.idat = buff;
         //TODO:とりあえず、先頭に0x00が入ってしまうのでごまかす
         imgData.idat = plain;
@@ -257,7 +257,7 @@ let anProcMap = {
         console.warn("!!" + chunkType +" no test!!");
         imgData.iCCP.compress = buff[1];
         imgData.iCCP.compress_info = "";
-        for(var i = 2; i < len; i++){
+        for(let i = 2; i < len; i++){
             imgData.iCCP.compress_info += String.fromCharCode(buff[i]);
         }
     },
@@ -265,7 +265,7 @@ let anProcMap = {
         // テキストデータ
         console.warn("!!" + chunkType +" no test!!");
         imgData.tEXt = "";
-        for(var i = 2; i < len; i++){
+        for(let i = 2; i < len; i++){
             imgData.tEXt.compress_info += String.fromCharCode(buff[i]);
         }
     },
@@ -468,9 +468,9 @@ let anProcMap = {
     if((buff.byteLength) < digit){
         return;
     }
-    var ret = 0;
-    for(var i = 0; i < digit; i++){
-        var maskVal = (0x000000ff << ((digit - 1) - i) * 8) >>> 0;
+    let ret = 0;
+    for(let i = 0; i < digit; i++){
+        let maskVal = (0x000000ff << ((digit - 1) - i) * 8) >>> 0;
         ret = ret + (maskVal & buff[i] << ((digit - 1) - i) * 8);
     }
     return ret;
@@ -481,8 +481,8 @@ let anProcMap = {
  */
  function calcCRC32(buff){
     let crcTarget = Array.from(buff, e => String.fromCharCode(e)).join("");
-        var crc = CRC32.bstr(crcTarget) >>> 0;
-        var crcBuff = [
+        let crc = CRC32.bstr(crcTarget) >>> 0;
+        let crcBuff = [
             (crc & 0xff000000) >>> (8 * 3),
             (crc & 0x00ff0000) >>> (8 * 2),
             (crc & 0x0000ff00) >>> (8 * 1),
@@ -495,8 +495,8 @@ let anProcMap = {
  * 引数の配列を16進数でコンソールに出力
  */
 function outBytewData(url, buff){
-    var bytedata = "";
-    for(var i = 0; i < buff.byteLength; i++){
+    let bytedata = "";
+    for(let i = 0; i < buff.byteLength; i++){
         bytedata = bytedata + ("00" + buff[i].toString(16)).slice(-2) + " ";
         if(0 == (i + 1) % 8){
             bytedata = bytedata + "\n";
