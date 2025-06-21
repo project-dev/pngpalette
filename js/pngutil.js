@@ -75,8 +75,8 @@ function createCanvas(width, height){
                 // 0バイト目が必ず0になるので、ここで調節する
                 let row = buff.slice(y * (pngW + 1), y * (pngW + 1) + (pngW + 1));
         
-                for(var x = sx; x < endX; x++ ){
-                    var isTrans = false;
+                for(let x = sx; x < endX; x++ ){
+                    let isTrans = false;
                     // ToDo:なぜか先頭が0っぽいのでさらに1ずらす。原因究明は後回し
                     let pxColorIdx = row[x + 1];
                     trans.forEach(element => {
@@ -142,9 +142,9 @@ function createCanvas(width, height){
             let h = target.height;
             let trans = target.trans;
 
-            var imgData = ctx.createImageData(target.width, target.height);
+            let imgData = ctx.createImageData(target.width, target.height);
 
-            //  var startTime = performance.now();
+            //  let startTime = performance.now();
             // TODO:このループが時間かかる。まぁ、当たり前なんだけど。
 /*
             for(let y = 0; y < h; y++ ){
@@ -180,13 +180,13 @@ function createCanvas(width, height){
 
             // 暫定的にシンプルにしてみたけど、まぁ、効果はない
             if(palette && palette.length > 0){
-                for(var idx = 0; idx < h * w; idx++){
+                for(let idx = 0; idx < h * w; idx++){
                     let pxColorIdx = target.canvas[idx];
                     let r = palette[pxColorIdx * 3    ];
                     let g = palette[pxColorIdx * 3 + 1];
                     let b = palette[pxColorIdx * 3 + 2];
 
-                    var isTrans = false;
+                    let isTrans = false;
                     if(trans){
                         trans.forEach(element => {
                             if(element == pxColorIdx){

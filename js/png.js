@@ -36,7 +36,7 @@ const PALETTE_DATA_POS = 41;
     if(response.ok){
         try{
             let data = await response.arrayBuffer();
-            var buff = new Uint8Array(data);
+            let buff = new Uint8Array(data);
             //outBytewData(url, buff);
     
     
@@ -223,13 +223,13 @@ let anProcMap = {
         if(imgData.ihdr.compress == 0){
             // zlib形式
             /*
-            var inflate = new Zlib.Inflate(buff);
-            var plain = inflate.decompress();
+            let inflate = new Zlib.Inflate(buff);
+            let plain = inflate.decompress();
             */
             // rawではない
-            //var plain = pako.inflateRaw(buff);
+            //let plain = pako.inflateRaw(buff);
             // 
-            var plain = pako.inflate(buff);
+            let plain = pako.inflate(buff);
         }else{
             // サポートしていない            
             throw new Exception("unsupport compress type = " + imgData.ihdr.compress);
