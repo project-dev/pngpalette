@@ -39,15 +39,15 @@ function createCanvas(width, height){
          * PNG(インデックスカラー)を仮想キャンバスに描画する
          * @param {pngClass} target 
          * @param {imgData} pngData 
-         * @param {integer} sx 
-         * @param {integer} sy 
-         * @param {integer} sw 
-         * @param {integer} sh 
-         * @param {integer} dx 
-         * @param {integer} dy 
+         * @param {integer} srcX ソースX座標
+         * @param {integer} srcY ソースY座標
+         * @param {integer} srcW ソース幅
+         * @param {integer} srcH ソース高さ
+         * @param {integer} dx 描画位置X
+         * @param {integer} dy 描画位置Y
          * @returns pngClass
          */
-        "drawPng":(target, pngData, sx, sy, sw, sh, dx, dy)=>{
+        "drawPng":(target, pngData, srcX, srcY, srcW, srcH, distX, distY)=>{
             if(pngData == null || 'ihdr' in pngData == false){
                 // ヘッダ情報がない
                 return;
@@ -61,21 +61,38 @@ function createCanvas(width, height){
         
             let pngW = pngData.ihdr.width;
             let pngH = pngData.ihdr.height;
-        
-            let endX = sx + sw <= pngW ? sx + sw : pngW;
-            let endY = sy + sh <= pngH ? sy + sh : pngH;
-        
+            let endX = srcX + srcW;
+            let endY = srcY + srcH;
+            let srcXOffset = 0;
+            let srcYOffset = 0;
+            if(distX < 0){
+                // 0未満
+                srcXOffset = Math.abs(distX);
+            }
+            if(distX + srcW > target.width){
+                // 描画先の幅以上
+                endX = srcX + (srcW - ((distX + srcW) - target.width));
+            }
+            if(distY < 0){
+                // 0未満
+                srcYOffset = Math.abs(distY);
+            }
+            if(distY + srcH > target.height){
+                // 描画先の高さ以上
+                endY = srcY + (srcH - ((distY + srcH) - target.height));
+            }
+
             // システムパレットが設定されている場合はシステムパレットを利用する
             // システムパレットがない場合はPNGのパレットを使用する
             let palette = target.palette ? target.palette : pngData.plte;
             let buff = pngData.idat;
             let trans = pngData.trns;
 
-            for(let y = sy; y < endY; y++ ){
+            for(let y = (srcY + srcYOffset); y < endY; y++ ){
                 // 0バイト目が必ず0になるので、ここで調節する
                 let row = buff.slice(y * (pngW + 1), y * (pngW + 1) + (pngW + 1));
         
-                for(let x = sx; x < endX; x++ ){
+                for(let x = (srcX + srcXOffset); x < endX; x++ ){
                     let isTrans = false;
                     // ToDo:なぜか先頭が0っぽいのでさらに1ずらす。原因究明は後回し
                     let pxColorIdx = row[x + 1];
@@ -86,9 +103,9 @@ function createCanvas(width, height){
                     });
                     if(!isTrans){
                         // 透明色は描画しない
-                        //let pxidx = ((y + sy) * pngW + (x + sx)) * 4;
-                        let drawX = x - sx + dx;
-                        let drawY = y - sy + dy;
+                        //let pxidx = ((y + srcY) * pngW + (x + srcX)) * 4;
+                        let drawX = x - srcX + distX;
+                        let drawY = y - srcY + distY;
                         let pxidx = (drawY * target.width + drawX);
                         target.canvas[pxidx] = pxColorIdx;
                     }
